@@ -14,10 +14,16 @@ services:
       - ${DATASETS_PATH:-/root/empty_data}:/root/data
       - /tmp/.X11-unix:/tmp/.X11-unix
       - /dev:/dev
+      - /home/zitongzhan/Downloads:/root/.semantic_inference
+      - /tmp/fastdds_udp_only.xml:/tmp/fastdds_udp_only.xml:ro
     network_mode: host
+    ipc: host
     environment:
       - DISPLAY=$DISPLAY
       - QT_X11_NO_MITSHM=1
+      - ROS_DOMAIN_ID=0
+      - FASTDDS_DEFAULT_PROFILES_FILE=/tmp/fastdds_udp_only.xml
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
     devices:
       - /dev/dri
     privileged: true

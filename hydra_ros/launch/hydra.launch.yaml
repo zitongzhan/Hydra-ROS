@@ -10,9 +10,9 @@ launch:
   - arg: {name: dataset, description: Dataset hydra is running}
   - arg: {name: labelspace, description: Closed-set semantics description}
   - arg: {name: robot_id, default: '0', description: Unique robot identifier}
-  - arg: {name: sensor_frame, default: left_cam, description: Camera frame}
-  - arg: {name: robot_frame, default: base_link_gt, description: Robot body tf frame}
-  - arg: {name: odom_frame, default: world, description: Odometry (map) frame}
+  - arg: {name: sensor_frame, default: camera_color_optical_frame, description: Camera frame}
+  - arg: {name: robot_frame, default: camera_imu_optical_frame, description: Robot body tf frame}
+  - arg: {name: odom_frame, default: odom, description: Odometry (map) frame}
   - arg: {name: map_frame, default: map, description: Backend scene graph frame}
   # configuration
   - arg: {name: hydra_config_path, default: $(find-pkg-share hydra)/config/datasets/$(var dataset).yaml, description: Primary hydra config}
