@@ -11,10 +11,17 @@ input:
         queue_size: 30
       sensor:
         type: camera_info
+        # Wait indefinitely for CameraInfo (no early exit)
+        warning_timeout_s: 10.0
+        error_timeout_s: 0.0
         min_range: 0.4
         max_range: 5.0
         extrinsics:
           type: ros
+          # Make extrinsics lookup robust: never error out, poll steadily
+          warning_timeout_s: 0.0
+          error_timeout_s: 0.0
+          wait_duration_s: 0.2
 map_window:
   type: spatial
   max_radius_m: 8.0

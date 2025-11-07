@@ -1,29 +1,34 @@
 ---
 # Assumes the input camera has the following topics:
-#   - color image: /zed/zed_node/left/image_rect_color
-#   - color info:  /zed/zed_node/left/camera_info
-#   - depth image: /zed/zed_node/depth/depth_registered
+#   - color image: /camera/camera/color/image_raw
+#   - color info:  /camera/camera/color/camera_info
+#   - depth image: /camera/camera/aligned_depth_to_color/image_raw
 launch:
+  - arg: {name: robot_id, default: '0', description: Unique robot identifier}
+  - arg: {name: sensor_frame, default: camera_color_optical_frame, description: Camera frame}
+  - arg: {name: robot_frame, default: camera_link, description: Robot body tf frame}
+  - arg: {name: odom_frame, default: odom, description: Odometry (map) frame}
+  - arg: {name: map_frame, default: map, description: Backend scene graph frame}
   - arg: {name: labelspace_name, default: ade20k_mit}
   - group:  # semantic segmentation
-      - push_ros_namespace: zed
-      - set_remap: {from: color/image_raw, to: zed_node/left/image_rect_color}
+      - set_remap: {from: color/image_raw, to: /camera/camera/color/image_raw}
       - include:
           file: $(find-pkg-share semantic_inference_ros)/launch/closed_set.launch.yaml
           arg:
-            - {name: labelspace_name, value: $(arg labelspace_name)}
-  - set_remap: {from: hydra/input/camera/rgb/image_raw, to: /zed/zed_node/left/image_rect_color}
-  - set_remap: {from: hydra/input/camera/rgb/camera_info, to: /zed/zed_node/left/camera_info}
-  - set_remap: {from: hydra/input/camera/depth_registered/image_rect, to: /zed/zed_node/depth/depth_registered}
-  - set_remap: {from: hydra/input/camera/semantic/image_raw, to: /zed/zed_node/semantic/image_raw}
+            - {name: labelspace_name, value: $(var labelspace_name)}
+  - set_remap: {from: hydra/input/camera/rgb/image_raw, to: /camera/camera/color/image_raw}
+  - set_remap: {from: hydra/input/camera/rgb/camera_info, to: /camera/camera/color/camera_info}
+  - set_remap: {from: hydra/input/camera/depth_registered/image_rect, to: /camera/camera/aligned_depth_to_color/image_raw}
+  - set_remap: {from: hydra/input/camera/semantic/image_raw, to: /semantic/image_raw}
   - node:  # hydra
       pkg: hydra_ros
       exec: hydra_ros_node
       name: hydra
       args: >
-        --config-utilities-file $(find-pkg-share hydra_ros)/doc/examples/example_config.yaml
+        --config-utilities-file /root/hydra_ws/src/hydra_ros/doc/examples/example_config.yaml
         --config-utilities-file $(find-pkg-share hydra)/config/label_spaces/$(var labelspace_name)_label_space.yaml
-        --config-utilities-yaml {log_path: $(env HOME)/.hydra/$(var dataset)}
+        --config-utilities-yaml {robot_id: $(var robot_id), odom_frame: $(var odom_frame), robot_frame: $(var robot_frame), map_frame: $(var map_frame)}
+        --config-utilities-yaml {log_path: $(env HOME)/.hydra/}
   - set_remap: {from: hydra_visualizer/dsg, to: hydra/backend/dsg}
   - include:  # visualization
       file: $(find-pkg-share hydra_visualizer)/launch/streaming_visualizer.launch.yaml
